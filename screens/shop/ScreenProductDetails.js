@@ -9,13 +9,14 @@ import {
     Button
 } from 'react-native';
 //Redux
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import * as cartActions from '../../redux/action/cartActions';
 //Constant Imports
 import Colors from '../../constants/Colors';
 
 
 
-//Navigation Options (For Header Styling and titles)
+//Navigation Options =======================================================================================================
 ScreenProductDetails.navigationOptions = (navigationData) => {
     return {
         headerTitle: navigationData.navigation.getParam('productTitle'),
@@ -24,13 +25,18 @@ ScreenProductDetails.navigationOptions = (navigationData) => {
 
 
 
-//Main Component Function ==================================================================================================
+//Main Function ============================================================================================================
 export default function ScreenProductDetails(props) {
     //Extract the Product ID from the Route Parameters
     const currentProductId = props.navigation.getParam('productId');
     //Get the matching Product Object from Redux using 'find()'
     const selectedProduct = useSelector((state) => state.products.availableProducts.find((currProd) => currProd.id === currentProductId));
+    //Store the useDispatch() function
+    const dispatch = useDispatch();
 
+
+
+    //Return JSX Component =================================================================================================
     return (
         <ScrollView>
             <View style={styles.container}>
@@ -41,7 +47,9 @@ export default function ScreenProductDetails(props) {
                     <Button
                         title='Add to Cart'
                         color={Colors.primary}
-                        onPress={() => { }}
+                        onPress={() => {
+                            dispatch(cartActions.addToCart(selectedProduct));
+                        }}
                     />
                 </View>
                 <Text style={styles.price}>${selectedProduct.price.toFixed(2)}</Text>

@@ -6,12 +6,9 @@ import {
     View,
     Text,
     Image,
-    Button,
     TouchableOpacity,
     TouchableNativeFeedback
 } from 'react-native';
-//Constant Imports
-import Colors from '../../constants/Colors';
 
 
 
@@ -26,7 +23,7 @@ export default function ProductItem(props) {
 
     return (
         <View style={styles.container}>
-            <TouchableComponent onPress={props.onViewDetail} useForeground>
+            <TouchableComponent onPress={props.onSelect} useForeground>
                 <View>
                     <View style={styles.imageContainer}>
                         <Image
@@ -38,17 +35,8 @@ export default function ProductItem(props) {
                         <Text style={styles.title} >{props.title}</Text>
                         <Text style={styles.price} >${props.price.toFixed(2)}</Text>
                     </View>
-                    <View style={styles.actions} >
-                        <Button
-                            title='Details'
-                            color={Colors.primary}
-                            onPress={props.onViewDetail}
-                        />
-                        <Button
-                            title='Add to Cart'
-                            color={Colors.primary}
-                            onPress={props.onAddToCart}
-                        />
+                    <View style={styles.actions}>
+                        {props.children}
                     </View>
                 </View>
             </TouchableComponent>
