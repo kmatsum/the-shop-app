@@ -1,5 +1,5 @@
 //React Imports
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Platform, ScrollView, View, Text, TextInput } from 'react-native';
 //Redux Imports
 import { useSelector } from 'react-redux';
@@ -12,6 +12,9 @@ import HeaderButton from '../../components/UI/HeaderButton';
 
 //Navigation Options =======================================================================================================
 ScreenEditProduct.navigationOptions = (navigationData) => {
+    //Fetch and save the submitHandler Function from navigationData
+    const submitFunction = navigationData.navigation.getParam('submit');
+
     return {
         headerTitle: navigationData.navigation.getParam('productId') ? 'Edit Product' : 'Add New Product',
         headerRight: () => (
@@ -19,9 +22,7 @@ ScreenEditProduct.navigationOptions = (navigationData) => {
                 <Item
                     title='Save'
                     iconName={Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'}
-                    onPress={() => {
-                        //Redux Code Here
-                    }}
+                    onPress={submitFunction}
                     iconSize={23}
                 />
             </HeaderButtons>
@@ -48,6 +49,17 @@ export default function ScreenEditProduct(props) {
     const [price, setPrice] = useState('');
     const [description, setDescription] = useState(editedProduct ? editedProduct.description : '');
 
+    //Create a Submit Handler Function to pass through React-Navigation as Params
+    const submitHandler = useCallback(() => {
+        console.log('Submitting...');
+    }, []);
+
+    /* useEffect() to pass the submitHandler function to the Navigation Params (Only when submitHandler is changed, which
+     is just once, since nothing else is changing about the function) */
+    useEffect(() => {
+        props.navigation.setParams({ submit: submitHandler })
+    }, [submitHandler]);
+
 
 
     //Return JSX Component =================================================================================================
@@ -71,14 +83,14 @@ export default function ScreenEditProduct(props) {
                     />
                 </View>
                 {editedProduct ? null :
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Price:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={price}
-                        onChangeText={(text) => setPrice(text)}
-                    />
-                </View>}
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Price:</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={price}
+                            onChangeText={(text) => setPrice(text)}
+                        />
+                    </View>}
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Description:</Text>
                     <TextInput
