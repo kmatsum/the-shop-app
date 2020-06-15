@@ -1,10 +1,16 @@
 //React Imports
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import {
+    StyleSheet,
+    View,
+    Text,
+    Button
+} from 'react-native';
 //Constant Imports
 import Colors from '../../constants/Colors';
 //Custom Component Imports
 import CartItem from './CartItem';
+import Card from '../UI/Card';
 
 
 
@@ -13,7 +19,7 @@ export default function OrderItem(props) {
     const [showDetails, setShowDetails] = useState(false);
 
     return (
-        <View style={styles.orderItem}>
+        <Card style={styles.orderItem}>
             <View style={styles.summary}>
                 <Text style={styles.summaryTotalAmount}>${props.totalAmount.toFixed(2)}</Text>
                 <Text style={styles.summaryDate}>{props.date}</Text>
@@ -36,7 +42,7 @@ export default function OrderItem(props) {
                     )}
                 </View>
             )}
-        </View>
+        </Card>
     );
 }
 
@@ -45,13 +51,6 @@ export default function OrderItem(props) {
 //StyleSheet ===============================================================================================================
 const styles = StyleSheet.create({
     orderItem: {
-        shadowColor: 'black',
-        shadowOpacity: 0.26,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 8,
-        elevation: 5,
-        borderRadius: 10,
-        backgroundColor: 'white',
         margin: '2.5%',
         padding: 10,
         alignItems: 'center',

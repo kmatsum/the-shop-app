@@ -1,8 +1,16 @@
 //React Imports
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Platform, ScrollView, View, Text, TextInput } from 'react-native';
+import {
+    StyleSheet,
+    Platform,
+    ScrollView,
+    View,
+    Text,
+    TextInput,
+} from 'react-native';
 //Redux Imports
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import * as productActions from '../../redux/action/productActions';
 //React Navigation Imports
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 //Custom Component Imports
@@ -34,6 +42,8 @@ ScreenEditProduct.navigationOptions = (navigationData) => {
 
 //Main Function ============================================================================================================
 export default function ScreenEditProduct(props) {
+    const dispatch = useDispatch();
+
     //Get the ProductId from React-Navigation Parameters
     const productId = props.navigation.getParam('productId');
     //Retrieve the product from Redux (Will return UNDEFINED if no productId is provided)
@@ -51,8 +61,28 @@ export default function ScreenEditProduct(props) {
 
     //Create a Submit Handler Function to pass through React-Navigation as Params
     const submitHandler = useCallback(() => {
-        console.log('Submitting...');
-    }, []);
+        //Check to see if the 'editedProduct' object exists. If it EXISTS, we are UPDATING a product
+        if (editedProduct) {
+            //Dispatch the Edit Product action
+            dispatch(productActions.updateProduct(
+                productId,
+                title,
+                description,
+                imageUrl,
+            ));
+        } else {
+            //Dispatch the Create Product action
+            dispatch(productActions.createProduct(
+                title,
+                description,
+                imageUrl,
+                +price
+            ));
+        }
+
+        //After the Create or Update of the Product, go back to the previous screen
+        props.navigation.goBack();
+    }, [dispatch, productId, title, description, imageUrl, price]);
 
     /* useEffect() to pass the submitHandler function to the Navigation Params (Only when submitHandler is changed, which
      is just once, since nothing else is changing about the function) */

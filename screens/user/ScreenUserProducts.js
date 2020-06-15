@@ -4,8 +4,8 @@ import {
     StyleSheet,
     Platform,
     FlatList,
-    View,
     Button,
+    Alert
 } from 'react-native';
 //Redux Imports
 import { useSelector, useDispatch } from 'react-redux';
@@ -55,14 +55,38 @@ ScreenUserProducts.navigationOptions = (navigationData) => {
 
 //Main Function ============================================================================================================
 export default function ScreenUserProducts(props) {
+    //GO TO EDIT PRODUCT SCREEN FUNCTION =====
+    function editProductHandler(productId) {
+        props.navigation.navigate('EditProduct', { productId: productId });
+    }
+
+
+
     //Point a Variable to the useDispatch() React Hook
     const dispatch = useDispatch();
     //Get the current user's products that they own
     const userProducts = useSelector((state) => state.products.userProducts);
 
-    //GO TO EDIT PRODUCT SCREEN FUNCTION =====
-    function editProductHandler(productId) {
-        props.navigation.navigate('EditProduct', { productId: productId });
+
+    //deleteHandler: Ask for use confirmation of Product Delete
+    const deleteHandler = (productId) => {
+        Alert.alert(
+            'Are you sure',
+            'Do you really want to delete this item?',
+            [
+                {
+                    text: 'No',
+                    style: 'default'
+                },
+                {
+                    text: 'Yes',
+                    style: 'destructive',
+                    onPress: () => {
+                        dispatch(productActions.deleteProduct(productId));
+                    }
+                }
+            ]
+        );
     }
 
     //Return JSX Component =================================================================================================
@@ -90,7 +114,7 @@ export default function ScreenUserProducts(props) {
                         title='Delete'
                         color='red'
                         onPress={() => {
-                            dispatch(productActions.deleteProduct(itemData.item.id));
+                            deleteHandler(itemData.item.id);
                         }}
                     />
                 </ProductItem>

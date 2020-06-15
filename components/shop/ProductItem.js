@@ -9,6 +9,8 @@ import {
     TouchableOpacity,
     TouchableNativeFeedback
 } from 'react-native';
+//Custom Componenet Imports
+import Card from '../UI/Card';
 
 
 
@@ -22,7 +24,7 @@ export default function ProductItem(props) {
     }
 
     return (
-        <View style={styles.container}>
+        <Card style={styles.container}>
             <TouchableComponent onPress={props.onSelect} useForeground>
                 <View>
                     <View style={styles.imageContainer}>
@@ -40,20 +42,13 @@ export default function ProductItem(props) {
                     </View>
                 </View>
             </TouchableComponent>
-        </View>
+        </Card>
     );
 }
 
 //Styling
 const styles = StyleSheet.create({
     container: {
-        shadowColor: 'black',
-        shadowOpacity: 0.26,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 8,
-        elevation: 5,
-        borderRadius: 10,
-        backgroundColor: 'white',
         height: 300,
         margin: '2.5%',
     },
