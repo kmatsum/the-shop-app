@@ -68,6 +68,7 @@ export default function ScreenUserProducts(props) {
     const userProducts = useSelector((state) => state.products.userProducts);
 
 
+
     //deleteHandler: Ask for use confirmation of Product Delete
     const deleteHandler = (productId) => {
         Alert.alert(
@@ -89,6 +90,8 @@ export default function ScreenUserProducts(props) {
         );
     }
 
+
+    
     //Return JSX Component =================================================================================================
     return (
         <FlatList

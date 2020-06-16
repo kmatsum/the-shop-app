@@ -44,10 +44,10 @@ export default (state = initialState, action) => {
         case UPDATE_PRODUCT: {
             //Grab the index of the Product we are Updating using our productID
             const availableProductIndex = state.availableProducts.findIndex(
-                (product) => product.id = action.productId
+                (product) => product.id === action.productId
             );
             const userProductIndex = state.userProducts.findIndex(
-                (product) => product.id = action.productId
+                (product) => product.id === action.productId
             );
 
             //Create a new Product Object using the Data Object Model
