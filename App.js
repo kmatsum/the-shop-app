@@ -1,17 +1,18 @@
 //React Imports 
 import React, { useState } from 'react';
 //Redux Imports
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import productsReducer from './redux/reducers/productReducer';
 import cartReducer from './redux/reducers/cartReducer';
 import orderReducer from './redux/reducers/orderReducer';
+import authReducer from './redux/reducers/authReducer';
+import ReduxThunk from 'redux-thunk';
 //Expo Imports
 import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
-//Navigation Imports
-import ShopNavigator from './navigation/ShopNavigator';
-
+//Navigation Container Imports
+import NavigationContainer from './navigation/NavigationContainer';
 
 
 //Instantiate the rootReducer and create the Redux-Store
@@ -19,13 +20,15 @@ const rootReducer = combineReducers({
   products: productsReducer,
   cart: cartReducer,
   orders: orderReducer,
+  authentication: authReducer,
 });
-const store = createStore(rootReducer);
+//Create the React-Redux Store
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 
 
 //Load Fonts
-function fetchFonts () {
+function fetchFonts() {
   return (
     Font.loadAsync({
       'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
@@ -53,7 +56,7 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <ShopNavigator />
+      <NavigationContainer />
     </Provider>
   );
 }

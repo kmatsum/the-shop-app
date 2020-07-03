@@ -1,7 +1,10 @@
 //Order Object Model Imports
 import Order from '../../data/models/order';
 //Redux Action Imports
-import { ADD_ORDER } from '../action/orderActions';
+import {
+    SET_ORDERS,
+    ADD_ORDER,
+} from '../action/orderActions';
 
 
 
@@ -17,14 +20,22 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
 
+        //ACTION: SET_ORDERS =====
+        case SET_ORDERS: {
+            return {
+                ...state,
+                orders: action.orders
+            };
+        } //END OF: SET_ORDERS =====
+
         //ACTION: ADD_ORDER =====
         case ADD_ORDER: {
             //Create a new Order Object, passing all needed constructor data
             const newOrder = new Order(
-                new Date().toString(),
+                action.orderData.id,
                 action.orderData.items,
                 action.orderData.totalAmount,
-                new Date()
+                action.orderData.date
             );
 
             //Add new Order to the Redux-State that is stored

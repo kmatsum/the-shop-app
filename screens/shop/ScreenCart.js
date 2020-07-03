@@ -1,11 +1,13 @@
 //React Imports
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     StyleSheet,
     View,
     Text,
     FlatList,
-    Button
+    Button,
+    ActivityIndicator,
+    Alert
 } from 'react-native';
 //Redux Imports
 import { useSelector, useDispatch } from 'react-redux';
@@ -30,6 +32,9 @@ ScreenCart.navigationOptions = (navigationData) => {
 
 //Main Function ============================================================================================================
 export default function ScreenCart(props) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
+
     const totalCartPrice = useSelector((state) => state.cart.totalCartPrice);
     //Get all the Cart Items in the Redux-Store
     const cartItems = useSelector((state) => {
@@ -51,7 +56,7 @@ export default function ScreenCart(props) {
         //Return the SORTED Array-Form cartItems to useSelector()
         return (
             cartItemsInArrayForm.sort((a, b) => {
-                return ( a.productId > b.productId ? 1: -1 )
+                return (a.productId > b.productId ? 1 : -1)
             })
         );
     });
@@ -60,20 +65,42 @@ export default function ScreenCart(props) {
     const dispatch = useDispatch();
 
 
+    //SEND ORCER HANDLER =====
+    async function sendOrderHandler() {
+        setError(null);
+        setIsLoading(true);
+        try {
+            await dispatch(ordersActions.addOrder(cartItems, totalCartPrice));
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsLoading(false);
+    }
+
+
 
     //Return JSX Component =================================================================================================
+
+
     return (
         <View style={styles.screen}>
             <Card style={styles.summary}>
                 <Text style={styles.summaryText}>Total: <Text style={styles.cartTotal}>${Math.round(totalCartPrice.toFixed(2) * 100) / 100}</Text></Text>
-                <Button
-                    title='Order Now'
-                    disabled={cartItems.length === 0}
-                    onPress={() => {
-                        console.log('=== Order dispatched ===');
-                        dispatch(ordersActions.addOrder(cartItems, totalCartPrice));
-                    }}
-                />
+                {
+                    isLoading ?
+                        <ActivityIndicator
+                            size='small'
+                            color={Colors.primary}
+                        />
+                        :
+                        <Button
+                            title='Order Now'
+                            disabled={cartItems.length === 0}
+                            onPress={sendOrderHandler}
+                        />
+                }
+
+
             </Card>
             <View>
                 <FlatList

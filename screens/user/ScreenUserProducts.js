@@ -5,7 +5,9 @@ import {
     Platform,
     FlatList,
     Button,
-    Alert
+    Alert,
+    View,
+    Text
 } from 'react-native';
 //Redux Imports
 import { useSelector, useDispatch } from 'react-redux';
@@ -91,8 +93,20 @@ export default function ScreenUserProducts(props) {
     }
 
 
-    
+
     //Return JSX Component =================================================================================================
+    //PRODUCT LIST EMPTY SCREEN =====
+    if (userProducts.length === 0) {
+        return (
+            <View style={styles.centered}>
+                <Text>No products found...</Text>
+            </View>
+        );
+    }
+
+
+
+    //MAIN SCREEN =====
     return (
         <FlatList
             data={userProducts}
@@ -126,3 +140,13 @@ export default function ScreenUserProducts(props) {
     );
 }
 
+
+
+//Styling ==================================================================================================================
+const styles = StyleSheet.create({
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+});

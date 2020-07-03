@@ -1,11 +1,14 @@
 //React Imports
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, SafeAreaView, Button } from 'react-native';
+//Redux Imports
+import { useDispatch } from 'react-redux';
+import * as authActions from '../redux/action/authActions';
 //React Navigation Imports
-import { createAppContainer } from 'react-navigation';
+import { createAppContainer, createSwitchNavigator, } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createTabNavigator } from 'react-navigation-tabs';
-import { createDrawerNavigator } from 'react-navigation-drawer';
+import { createDrawerNavigator, DrawerNavigatorItems } from 'react-navigation-drawer';
 //Expo Imports
 import { Ionicons } from '@expo/vector-icons';
 //Screen Imports
@@ -15,13 +18,15 @@ import ScreenCart from '../screens/shop/ScreenCart';
 import ScreenOrders from '../screens/shop/ScreenOrders';
 import ScreenUserProducts from '../screens/user/ScreenUserProducts';
 import ScreenEditProduct from '../screens/user/ScreenEditProduct';
+import ScreenAuth from '../screens/user/ScreenAuth';
+import ScreenStartup from '../screens/ScreenStartup';
 //Constant Imports
 import Colors from '../constants/Colors';
 
 
 
 //Create a default Navigation Options variable for re-use in code
-const defaultStackNavigationOptions = {
+const defaultNavigationOptions = {
     headerStyle: {
         backgroundColor: Platform.OS === 'android' ? Colors.primary : '',
     },
@@ -51,7 +56,7 @@ const productsStackNavigator = createStackNavigator({
             />
         )
     },
-    defaultNavigationOptions: defaultStackNavigationOptions,
+    defaultNavigationOptions: defaultNavigationOptions,
 });
 
 
@@ -69,7 +74,7 @@ const ordersStackNavigator = createStackNavigator({
             />
         )
     },
-    defaultNavigationOptions: defaultStackNavigationOptions,
+    defaultNavigationOptions: defaultNavigationOptions,
 });
 
 
@@ -88,7 +93,7 @@ const usersStackNavigator = createStackNavigator({
             />
         )
     },
-    defaultNavigationOptions: defaultStackNavigationOptions,
+    defaultNavigationOptions: defaultNavigationOptions,
 });
 
 
@@ -101,9 +106,46 @@ const appDrawerNavigator = createDrawerNavigator({
 }, {
     contentOptions: {
         activeTintColor: Colors.primary
+    },
+    contentComponent: (props) => {
+        //Create a React-Redux dispatch constant
+        const dispatch = useDispatch();
+        //Return the JSX Component =====
+        return (
+            <View style={{ flex: 1, paddingTop: 20 }}>
+                <SafeAreaView forceInset={{ top: 'always', horizontal: 'never' }}>
+                    <DrawerNavigatorItems {...props} />
+                    <Button
+                        title='Logout'
+                        color={Colors.primary}
+                        onPress={() => {
+                            dispatch(authActions.logout);
+                        }}
+                    />
+                </SafeAreaView>
+            </View>
+        )
     }
 });
 
 
 
-export default createAppContainer(appDrawerNavigator);
+//Authentication Navigator =================================================================================================
+const AuthNavigator = createStackNavigator({
+    Auth: ScreenAuth
+}, {
+    defaultNavigationOptions: defaultNavigationOptions
+});
+
+
+
+//Main Navigator ===========================================================================================================
+const MainNavigator = createSwitchNavigator({
+    Startup: ScreenStartup,
+    Auth: AuthNavigator,
+    Shop: appDrawerNavigator
+});
+
+
+
+export default createAppContainer(MainNavigator);

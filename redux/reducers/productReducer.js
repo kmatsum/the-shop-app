@@ -3,14 +3,19 @@ import PRODUCTS from '../../data/dummy-data';
 //Import the Data Object Model
 import Product from '../../data/models/product';
 //Import Redux Aciton
-import { CREATE_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT } from '../action/productActions';
+import {
+    CREATE_PRODUCT,
+    UPDATE_PRODUCT,
+    DELETE_PRODUCT,
+    SET_PRODUCTS
+} from '../action/productActions';
 
 
 
 //Initial Redux-Store State (On App Init)
 const initialState = {
-    availableProducts: PRODUCTS,
-    userProducts: (PRODUCTS.filter((product) => product.ownerId === 'u1'))
+    availableProducts: [],
+    userProducts: []
 };
 
 
@@ -19,12 +24,21 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
 
+        //ACITON: SET_PRODUCTS =====
+        case SET_PRODUCTS: {
+            return {
+                ...state,
+                availableProducts: action.products,
+                userProducts: action.userProducts
+            };
+        } //END OF: SET_PRODUCTS =====
+
         //ACTION: CREATE_PRODUCT =====
         case CREATE_PRODUCT: {
             //Create a new Product object
             const newProduct = new Product(
-                new Date().toString(),
-                'u1',
+                action.productData.id,
+                action.productData.ownerId,
                 action.productData.title,
                 action.productData.imageUrl,
                 action.productData.description,

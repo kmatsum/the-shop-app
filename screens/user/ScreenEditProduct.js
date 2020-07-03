@@ -5,9 +5,9 @@ import {
     Platform,
     ScrollView,
     View,
-    Text,
-    TextInput,
-    Alert
+    KeyboardAvoidingView,
+    Alert,
+    ActivityIndicator
 } from 'react-native';
 //Redux Imports
 import { useSelector, useDispatch } from 'react-redux';
@@ -16,6 +16,8 @@ import * as productActions from '../../redux/action/productActions';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 //Custom Component Imports
 import HeaderButton from '../../components/UI/HeaderButton';
+import Input from '../../components/UI/Input';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 
 
@@ -79,8 +81,10 @@ const formReducer = (state, action) => {
 
 //Main Function ============================================================================================================
 export default function ScreenEditProduct(props) {
-    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
 
+    const dispatch = useDispatch();
 
     //Get the ProductId from React-Navigation Parameters
     const productId = props.navigation.getParam('productId');
@@ -111,8 +115,19 @@ export default function ScreenEditProduct(props) {
     });
 
 
+
+    //ERROR HANDLING ALERT =====
+    useEffect(() => {
+        if (error) {
+            Alert.alert('An error occured...', error, [{ text: 'Okay' }]);
+        }
+    }, [error])
+
+
+
+    //HANDLER FUNCTIONS ===========================================================================
     //Create a Submit Handler Function to pass through React-Navigation as Params
-    const submitHandler = useCallback(() => {
+    const submitHandler = useCallback(async () => {
         //Input validation check
         if (!formState.formIsValid) {
             Alert.alert(
@@ -124,27 +139,40 @@ export default function ScreenEditProduct(props) {
             );
             return;
         }
+
+        //Prepare the 'Loading' states
+        setError(null);
+        setIsLoading(true);
+
         //Check to see if the 'editedProduct' object exists. If it EXISTS, we are UPDATING a product
-        if (editedProduct) {
-            //Dispatch the Edit Product action
-            dispatch(productActions.updateProduct(
-                productId,
-                formState.inputValues.title,
-                formState.inputValues.description,
-                formState.inputValues.imageUrl,
-            ));
-        } else {
-            //Dispatch the Create Product action
-            dispatch(productActions.createProduct(
-                formState.inputValues.title,
-                formState.inputValues.description,
-                formState.inputValues.imageUrl,
-                +formState.inputValues.price
-            ));
+        try {
+            if (editedProduct) {
+                //Dispatch the Edit Product action
+                await dispatch(productActions.updateProduct(
+                    productId,
+                    formState.inputValues.title,
+                    formState.inputValues.description,
+                    formState.inputValues.imageUrl,
+                ));
+            } else {
+                //Dispatch the Create Product action
+                await dispatch(productActions.createProduct(
+                    formState.inputValues.title,
+                    formState.inputValues.description,
+                    formState.inputValues.imageUrl,
+                    +formState.inputValues.price
+                ));
+            }
+
+            //After the Create or Update of the Product, go back to the previous screen
+            props.navigation.goBack();
+
+        } catch (err) {
+            setError(err.message);
         }
 
-        //After the Create or Update of the Product, go back to the previous screen
-        props.navigation.goBack();
+        //Set isLoading to false to indicate that the Loading is finished
+        setIsLoading(false);
     }, [dispatch, productId, formState]);
 
     /* useEffect() to pass the submitHandler function to the Navigation Params (Only when submitHandler is changed, which
@@ -156,70 +184,99 @@ export default function ScreenEditProduct(props) {
 
 
     //Title Change Handler - Validation
-    const titleChangedHandler = (inputId, text) => {
-        //Create a validity variable
-        let isValid = false;
-        //Check if the trimmed text is not empty
-        if (text.trim().length > 0) {
-            isValid = true
-        }
+    const inputChangeHandler = useCallback((inputId, inputValue, inputValidity) => {
         //Dispatch the reducer, passing an Action Object containing an action type and some data
         dispatchFormState({
             type: FORM_INPUT_UPDATE,
-            value: text,
-            isValid: isValid,
+            value: inputValue,
+            isValid: inputValidity,
             input: inputId
         });
-    };
+    }, [dispatchFormState]);
+    //END OF: HANDLER FUNCTIONS ===================================================================
 
 
 
     //Return JSX Component =================================================================================================
+    //LOADING VIEW
+    if (isLoading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator
+                    size='large'
+                    color={Colors.primary}
+                />
+            </View>
+        );
+    }
+
+
+
+    //DEFAULT VIEW
     return (
-        <ScrollView>
-            <View style={styles.formConainter}>
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Product Name:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={formState.inputValues.title}
-                        onChangeText={(text) => titleChangedHandler('title', text)}
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior='padding'
+            keyboardVerticalOffset={100}
+        >
+            <ScrollView>
+                <View style={styles.formConainter}>
+                    <Input
+                        id='title'
+                        label='Title'
+                        errorText='Please enter a valid title!'
                         autoCapitalize='words'
                         autoCorrect
                         returnKeyType='next'
+                        onInputChange={inputChangeHandler}
+                        initialValue={editedProduct ? editedProduct.title : ''}
+                        initiallyValid={!!editedProduct}
+                        required
                     />
-                    {!formState.inputValidity.title && <Text>Please enter a valid title!</Text>}
-                </View>
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Image URL:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={formState.inputValues.imageUrl}
-                        onChangeText={(text) => titleChangedHandler('imageUrl', text)}
+
+                    <Input
+                        id='imageUrl'
+                        label='Image Url'
+                        errorText='Please enter a valid Image Url!'
+                        autoCorrect
                         returnKeyType='next'
+                        onInputChange={inputChangeHandler}
+                        initialValue={editedProduct ? editedProduct.imageUrl : ''}
+                        initiallyValid={!!editedProduct}
+                        required
                     />
-                </View>
-                {editedProduct ? null :
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Price:</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={formState.inputValues.price}
-                            onChangeText={(text) => titleChangedHandler('price', text)}
+
+                    {editedProduct ? null : (
+                        <Input
+                            id='price'
+                            label='Price'
+                            errorText='Please enter a valid Price!'
                             keyboardType='decimal-pad'
                             returnKeyType='next'
+                            onInputChange={inputChangeHandler}
+                            required
+                            min={0.1}
                         />
-                    </View>}
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Description:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={formState.inputValues.description}
-                        onChangeText={(text) => titleChangedHandler('description', text)}
+                    )}
+
+                    <Input
+                        id='description'
+                        label='Description'
+                        errorText='Please enter a valid description!'
+                        keyboardType='default'
+                        autoCapitalize='sentences'
+                        autoCorrect
+                        multiline
+                        numberOfLines={3}
+                        onInputChange={inputChangeHandler}
+                        initialValue={editedProduct ? editedProduct.description : ''}
+                        initiallyValid={!!editedProduct}
+                        required
+                        minLength={5}
                     />
                 </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -230,17 +287,9 @@ const styles = StyleSheet.create({
     formConainter: {
         margin: '5%'
     },
-    inputContainer: {
-        width: '100%'
-    },
-    label: {
-        fontFamily: 'open-sans-bold',
-        marginVertical: 8
-    },
-    input: {
-        paddingHorizontal: 2,
-        paddingVertical: 5,
-        borderBottomColor: '#ccc',
-        borderBottomWidth: 1
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 });
